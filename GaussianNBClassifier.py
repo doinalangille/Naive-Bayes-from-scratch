@@ -51,8 +51,7 @@ class GaussianNBClassifier:
         """
         """
         exponent = np.exp(-((x-mean)**2 / (2*stdev**2)))
-        proba = exponent / (np.sqrt(2*np.pi)*stdev)
-        return proba
+        return exponent / (np.sqrt(2*np.pi)*stdev)
     
     def predict(self, X):
         """
@@ -60,7 +59,7 @@ class GaussianNBClassifier:
         MAPs = []
         for row in X:
             joint_proba = {}
-            for target, features in self.class_summary.items():
+            for class_name, features in self.class_summary.items():
                 total_features = len(features['summary'])
                 likelihood = 1
                 for idx in range(total_features):
@@ -70,11 +69,11 @@ class GaussianNBClassifier:
                     normal_proba = self.gauss_distribution_function(feature, mean, stdev)
                     likelihood *= normal_proba
                 prior_proba = features['prior_proba']
-                joint_proba[target] = prior_proba * likelihood
+                joint_proba[class_name] = prior_proba * likelihood
             posterior_proba = {}
             marginal_proba = sum(joint_proba.values())
-            for target, joint_p in joint_proba.items():
-                posterior_proba[target] = joint_p / marginal_proba
+            for class_name, joint_p in joint_proba.items():
+                posterior_proba[class_name] = joint_p / marginal_proba
             MAP = max(posterior_proba, key=posterior_proba.get)
             MAPs.append(MAP)
         return MAPs

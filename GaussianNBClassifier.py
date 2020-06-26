@@ -11,8 +11,8 @@ class GaussianNBClassifier:
 
         Parameters:
         ----------
-        X - array-like, list of features
-        y - list, target variable
+        X: array-like, list of features
+        y: list, target variable
 
         Returns:
         A dictionnary with y as keys, and the assigned X as values
@@ -28,6 +28,11 @@ class GaussianNBClassifier:
     
     def summarize(self, X):
         """
+        Creates a sequence of mean and standard deviation for each column of X.
+
+        Parameters:
+        ----------
+        X: array-like, dataset
         """
         for feature in zip(*X):
             yield {
@@ -37,6 +42,15 @@ class GaussianNBClassifier:
           
     def fit(self, X, y):
         """
+        Trains the model.
+
+        Parameters:
+        ----------
+        X: array-like, training features
+        y: list, target variable
+
+        Returns:
+        Dictionary with the prior probability, mean, and standard deviation of each class
         """
         separated_classes = self.separate_classes(X, y)
         self.class_summary = {}
@@ -49,12 +63,30 @@ class GaussianNBClassifier:
     
     def gauss_distribution_function(self, x, mean, stdev):
         """
+        Gaussian Distribution Function
+
+        Parameters:
+        ----------
+        x: float, value of feature
+        mean: float, the average value of feature
+        stdev: float, the standard deviation of feature
+
+        Returns:
+        A value of Normal Probability
         """
         exponent = np.exp(-((x-mean)**2 / (2*stdev**2)))
         return exponent / (np.sqrt(2*np.pi)*stdev)
     
     def predict(self, X):
         """
+        Predicts the class.
+
+        Parameters:
+        ----------
+        X: array-like, test data set
+
+        Returns:
+        List of predicted class for each row of data set
         """
         MAPs = []
         for row in X:
@@ -70,16 +102,20 @@ class GaussianNBClassifier:
                     likelihood *= normal_proba
                 prior_proba = features['prior_proba']
                 joint_proba[class_name] = prior_proba * likelihood
-            posterior_proba = {}
-            marginal_proba = sum(joint_proba.values())
-            for class_name, joint_p in joint_proba.items():
-                posterior_proba[class_name] = joint_p / marginal_proba
-            MAP = max(posterior_proba, key=posterior_proba.get)
+            MAP = max(joint_proba, key=joint_proba.get)
             MAPs.append(MAP)
         return MAPs
     
     def accuracy(self, y_test, y_pred):
         """
+        Calculates model's accuracy.
+
+        Parameters:
+        y_test: actual values
+        y_pred: predicted values
+
+        Returns:
+        A number between 0-1, representing the percentage of correct predictions.
         """
         true_true = 0
         for y_t, y_p in zip(y_test, y_pred):
